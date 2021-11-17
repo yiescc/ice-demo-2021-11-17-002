@@ -1,23 +1,24 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { appHistory } from '@ice/stark-app';
+import { event } from '@ice/stark-data';
+import { usePersistFn } from 'ahooks';
 
 export default ({ children }: PropsWithChildren<{}>) => {
+  const onAppHistoryRequestChange = usePersistFn((payload: { method: 'push'; path: string }) => {
+    console.log('apphistory', payload);
+
+    appHistory.push('/child1');
+  });
+
+  useEffect(() => {
+    event.on('appHistory', onAppHistoryRequestChange);
+    return () => {
+      event.off('appHistory', onAppHistoryRequestChange);
+    };
+  }, [onAppHistoryRequestChange]);
+
   return (
     <div>
-      <button
-        onClick={() => {
-          appHistory.push('/child1');
-        }}
-      >
-        child1
-      </button>
-      <button
-        onClick={() => {
-          appHistory.push('/child2');
-        }}
-      >
-        child2
-      </button>
       <div style={{ marginTop: '100px' }}>{children}</div>
     </div>
   );
